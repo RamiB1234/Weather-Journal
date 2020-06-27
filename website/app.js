@@ -1,7 +1,7 @@
 /* Global Variables */
 const baseURL = 'http://api.openweathermap.org/data/2.5/weather?zip='
-const apiKey = 'f9a3936b8f0a2f9f2672175fa16d7d91';
-let zipCode = '94040'; // should be coming from UI
+const apiKey = 'f9a3936b8f0a2f9f2672175fa16d7d91'; 
+const localServerURL = 'http://localhost:3000';
 
 // api.openweathermap.org/data/2.5/weather?zip={zip code},{country code}&appid={your api key}
 
@@ -21,10 +21,10 @@ const getTemp = async (zip)=>{
       return data;
     }  catch(error) {
       console.log("error", error);
-      // appropriately handle the error
     }
   }
 
+  // Send data by a POST request
   const sendUserData= async (url, data={})=>{
 
     const res = await fetch(url, {
@@ -43,11 +43,10 @@ const getTemp = async (zip)=>{
     }  catch(error) {
       console.log(res);
       console.log("error", error);
-      // appropriately handle the error
     }
   }
 
-  // Get data from local server
+// Get the data by a GET request
 const getData = async (url)=>{
 
   const res = await fetch(url)
@@ -58,10 +57,35 @@ const getData = async (url)=>{
     return data;
   }  catch(error) {
     console.log("error", error);
-    // appropriately handle the error
   }
 }
 
-  getTemp(zipCode);
-  //getData('http://localhost:3000/data');
-  sendUserData('http://localhost:3000/addUserData', {temperature: "26", date: newDate, comment: 'test'})
+// Add an event listener
+const generateBtn = document.getElementById('generate');
+generateBtn.addEventListener('click', generate);
+
+// Chaining requests
+function generate(){
+  const zipCode = document.getElementById('zip').value;
+  const content = document.getElementById('feelings').value;
+
+  // Get data from openweathermap API
+  getTemp(zipCode)
+  .then(function(data){
+    const temp= data.main.temp;
+
+    // Send data to local server
+    sendUserData(localServerURL+ '/addUserData', {temperature: temp, date: newDate, content: content})
+  }).then(function(){
+
+    // Get data from local server
+    getData(localServerURL+ '/data')
+    .then(function(data){
+
+      // Update UI:
+      document.getElementById('date').innerHTML = "Date: "+ data.date;
+      document.getElementById('temp').innerHTML = "Temperature: "+ data.temperature;
+      document.getElementById('content').innerHTML = "Feelings: "+ data.content;
+    });
+  })
+}

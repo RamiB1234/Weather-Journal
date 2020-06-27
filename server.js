@@ -42,7 +42,7 @@ app.get('/data', function (req, res) {
 app.post('/addUserData', function (req, res) {
     projectData.temperature = req.body.temperature;
     projectData.date = req.body.date;
-    projectData.comment = req.body.comment;
+    projectData.content = req.body.content;
 
     res.send(projectData);
   })
